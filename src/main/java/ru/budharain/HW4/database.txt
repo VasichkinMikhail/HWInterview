@@ -1,0 +1,81 @@
+Скрипты создания бд
+
+CREATE DATABASE cinema;
+
+create table films(
+id integer auto_increment primary key,
+film_name varchar(30) not null,
+length integer not null
+);
+insert into films (film_name, length) values ('Rambo-4', 120);
+insert into films (film_name, length) values ('BloodRain', 90);
+insert into films (film_name, length) values ('Doom', 60);
+insert into films (film_name, length) values ('Blade', 90);
+insert into films (film_name, length) values ('Soldiers', 120);
+
+create table film_session(
+id integer auto_increment primary key,
+day_of_the_week varchar(30) not null,
+times_of_day varchar(30) not null
+);
+insert into film_session (day_of_the_week, times_of_day) values ('Monday','morning');
+insert into film_session (day_of_the_week, times_of_day) values ('Monday', 'day');
+insert into film_session (day_of_the_week, times_of_day) values ('Monday', 'evening');
+insert into film_session (day_of_the_week, times_of_day) values ('Tuesday', 'morning');
+insert into film_session (day_of_the_week, times_of_day) values ('Tuesday', 'day');
+insert into film_session (day_of_the_week, times_of_day) values ('Tuesday', 'evening');
+
+create table ticket_price(
+id integer auto_increment primary key,
+film_session_id integer not null,
+price integer not null,
+foreign key (film_session_id) references film_session(id)
+);
+insert into ticket_price (film_session_id, price) values (1, 500);
+insert into ticket_price (film_session_id, price) values (2, 650);
+insert into ticket_price (film_session_id, price) values (3, 800);
+insert into ticket_price (film_session_id, price) values (4, 520);
+insert into ticket_price (film_session_id, price) values (5, 700);
+insert into ticket_price (film_session_id, price) values (6, 900);
+
+create table shedule(
+id integer auto_increment primary key,
+film_id integer not null,
+ticket_price_id integer not null,
+time_start time not null,
+foreign key (ticket_price_id) references ticket_price(id),
+foreign key (film_id) references films(id)
+);
+insert into shedule (film_id, ticket_price_id,time_start) values (1, 1, '9:10');
+insert into shedule (film_id, ticket_price_id,time_start) values (1, 2, '12:20');
+insert into shedule (film_id, ticket_price_id,time_start) values (2, 1, '9:50');
+insert into shedule (film_id, ticket_price_id,time_start) values (2, 3, '18:20');
+insert into shedule (film_id, ticket_price_id,time_start) values (3, 1, '8:30');
+insert into shedule (film_id, ticket_price_id,time_start) values (3, 2, '13:40');
+
+create table ticket_sold(
+id integer auto_increment primary key,
+film_session integer not null,
+ticket_amount integer not null,
+foreign key (film_session) references shedule(id)
+);
+insert into ticket_sold (film_session, ticket_amount) values (1,30);
+insert into ticket_sold (film_session, ticket_amount) values (2,15);
+insert into ticket_sold (film_session, ticket_amount) values (3,10);
+insert into ticket_sold (film_session, ticket_amount) values (4,50);
+
+Запросы
+1.
+select films.film_name, films.length,shedule.time_start
+from shedule
+join films on shedule.film_id = films.id
+order by time_start;
+2.
+select films.film_name, shedule.time_start,films.length
+from shedule
+join films on shedule.film_id = films.id
+order by time_start;
+select films.film_name, films.length,shedule.time_start, DATE_ADD(shedule.time_start, INTERVAL films.length HOUR_MINUTE) as time_finish
+from shedule
+join films on shedule.film_id = films.id
+order by time_start;
